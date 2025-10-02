@@ -1,4 +1,4 @@
-**WCAG Theme Inspector**
+##WCAG Theme Inspector
 
 **💡 Overview**
 
@@ -64,6 +64,7 @@ The project consists of a single file, utilizing Tailwind CSS for styling and va
 
 
 index.html: Contains all the HTML structure, CSS styling (including variable definitions), and JavaScript logic.
+
 
 
 
