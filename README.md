@@ -1,4 +1,4 @@
-WCAG Theme Inspector
+**WCAG Theme Inspector**
 💡 Overview
 The WCAG Theme Inspector is a single-file, interactive web application designed to help designers and developers test and refine color palettes against WCAG (Web Content Accessibility Guidelines) 2.x Contrast Requirements.
 
@@ -55,5 +55,6 @@ Note: The contrast check automatically calculates the optimal text color (white 
 
 📄 File Structure
 The project consists of a single file, utilizing Tailwind CSS for styling and vanilla JavaScript for logic and theme application.
+
 
 index.html: Contains all the HTML structure, CSS styling (including variable definitions), and JavaScript logic.
