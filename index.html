@@ -79,19 +79,12 @@
             max-width: 0;
             min-width: 0;
             padding-left: 0;
-            padding-right: 10 px;
+            padding-right: 0;
             overflow: hidden;
             /* Hide border when fully collapsed */
             border-right-width: 0px; 
         }
 
-        /* Hide the sidebar on small screens initially, let JS handle the toggle on desktop */
-        @media (max-width: 639px) { /* sm breakpoint */
-            #sidebar {
-                display: none;
-            }
-        }
-        
         /* The content wrapper inside the sidebar should fade out when collapsed */
         #sidebar .sidebar-content {
             transition: opacity 0.3s ease-in-out;
@@ -107,9 +100,11 @@
             transition: left 0.3s ease-in-out;
         }
         
-        /* When sidebar is collapsed, move the button to the left edge (0rem) */
-        #sidebar.is-collapsed ~ #sidebarToggle {
-            left: 0rem !important; /* Use !important to override inline style */
+        /* Ensure the button is also at the edge on small screens where sidebar is hidden by default */
+        @media (max-width: 639px) { 
+            #sidebarToggle {
+                left: 0rem !important; /* Move button to the left edge on mobile */
+            }
         }
         
     </style>
@@ -214,7 +209,6 @@
                 <div class="sidebar-content">
                     <div class="flex justify-start items-center mb-4">
                         <h3 class="text-lg font-bold text-theme-heading-color">Sidebar Navigation</h3>
-                        <!-- REMOVED THE TOGGLE BUTTON FROM HERE -->
                     </div>
 
                     <ul class="space-y-2">
@@ -232,24 +226,23 @@
 
             </aside>
             
-            <!-- NEW: Toggle Button positioned outside the sidebar/at its edge -->
-            <!-- Initial left: 16rem is the width of the sidebar (w-64) -->
-            <button id="sidebarToggle" class="absolute top-4 p-2 text-theme-link-color hover:text-theme-button-accent bg-theme-card-bg rounded-r-xl border-y-2 border-r-2 border-theme-border-color z-20 shadow transition-all duration-300" 
-                style="left: 16rem;"> 
+            <!-- 
+                Sidebar Toggle Button (Remains a sibling for independent positioning)
+                Position is now 'top-4' to align with the top of the sidebar content.
+                Rounding and borders are controlled by JS to match the state.
+            -->
+            <button id="sidebarToggle" class="absolute top-4 p-2 text-theme-link-color hover:text-theme-button-accent bg-theme-card-bg border-y-2 border-theme-border-color z-20 shadow transition-all duration-300"> 
                 
                 <div id="sidebarToggleIcon">
-                    <!-- Default (Open) Icon: Left Arrow (to close the sidebar) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6"/>
-                    </svg>
+                    <!-- Icon will be set by JavaScript on load -->
                 </div>
             </button>
 
-            <!-- Main Content Preview Area -->
-            <main class="flex-grow">
+            <!-- Main Content Preview Area (Added padding to create space from the sidebar) -->
+            <main id="mainContent" class="flex-grow p-4 md:p-8 transition-padding duration-300">
                 
-                <!-- Dummy Navbar/Hero Section (Simulates the top of a website) -->
-                <div class="text-center py-12 mb-8 mt-8 bg-theme-card-bg rounded-xl shadow-xl border-2 border-theme-border-color transition-colors duration-300 mx-4 sm:mx-8">
+                <!-- Dummy Navbar/Hero Section (Removed mx-4/sm:mx-8 - padding is handled by parent <main>) -->
+                <div class="text-center py-12 mb-8 bg-theme-card-bg rounded-xl shadow-xl border-2 border-theme-border-color transition-colors duration-300">
                     <h1 class="text-4xl font-extrabold text-theme-heading-color transition-colors duration-300">
                         WCAG Theme Inspector
                     </h1>
@@ -259,8 +252,8 @@
                 </div>
                 <!-- END Dummy Navbar/Hero Section -->
 
-                <!-- Content Cards Container (MAX WIDTH, centered, with padding) -->
-                <div class="max-w-4xl mx-auto p-4 sm:p-0 space-y-10">
+                <!-- Content Cards Container (Removed p-4/sm:p-0 - padding is handled by parent <main>) -->
+                <div class="max-w-4xl mx-auto space-y-10">
                     
                     <!-- Heading and Link Contrast Showcase -->
                     <section class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
@@ -338,6 +331,14 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarIconContainer = document.getElementById('sidebarToggleIcon');
+        const mainContent = document.getElementById('mainContent'); // NEW: Reference to the main content area
+
+        // Sidebar Width Constant
+        const SIDEBAR_WIDTH = '16rem'; 
+        // Estimated button width (p-2 padding + icon size)
+        const BUTTON_WIDTH = '2.5rem'; 
+        // NEW: Increased padding when sidebar is collapsed
+        const COLLAPSED_PADDING = '4rem';
 
 
         // Define SVG strings for the toggle states
@@ -575,17 +576,72 @@
         function handleSidebarToggle() {
             const isCollapsed = sidebar.classList.toggle('is-collapsed');
             
+            // Remove all specific border/rounding classes before applying the new state
+            sidebarToggle.classList.remove('rounded-l-xl', 'rounded-r-xl', 'border-l-2', 'border-r-2');
+            
             // Update the icon and aria label based on the new state
             if (isCollapsed) {
-                // Sidebar is now collapsed (hidden), show hamburger icon (to open)
+                // Sidebar is now collapsed (hidden): Button moves to TOP LEFT SCREEN CORNER
+                
                 sidebarIconContainer.innerHTML = ICON_HAMBURGER;
                 sidebarToggle.setAttribute('aria-label', 'Open sidebar menu');
+                
+                // Position at the top left corner of the screen (0rem)
+                sidebarToggle.style.left = '0rem';
+                
+                // Shape: Rounded on right, Border on right (to look like a handle from the left edge)
+                sidebarToggle.classList.add('rounded-r-xl', 'border-r-2');
+                
+                // FIX: Add left padding to the main content to push it past the button and create more gap
+                mainContent.style.paddingLeft = COLLAPSED_PADDING;
+                
             } else {
-                // Sidebar is now open (visible), show arrow icon (to close)
+                // Sidebar is now open (visible): Button moves to TOP RIGHT CORNER OF SIDEBAR
+                
                 sidebarIconContainer.innerHTML = ICON_ARROW_LEFT;
                 sidebarToggle.setAttribute('aria-label', 'Close sidebar menu');
+                
+                // Position the button fully inside the sidebar
+                sidebarToggle.style.left = 'calc(' + SIDEBAR_WIDTH + ' - ' + BUTTON_WIDTH + ')'; 
+                
+                // Shape: Rounded on left, Border on left (to look like a handle from the right side)
+                sidebarToggle.classList.add('rounded-l-xl', 'border-l-2');
+                
+                // FIX: Remove the forced padding, allowing Tailwind's p-4 (1rem) or md:p-8 (2rem) to take effect
+                mainContent.style.paddingLeft = ''; 
             }
         }
+        
+        /**
+         * Checks screen width and sets the initial state of the sidebar.
+         */
+        function setInitialSidebarState() {
+            // Tailwind's 'sm' breakpoint is 640px. We use 639px for max-width check.
+            const isSmallScreen = window.innerWidth <= 639;
+
+            // Remove all specific border/rounding classes before applying the new state
+            sidebarToggle.classList.remove('rounded-l-xl', 'rounded-r-xl', 'border-l-2', 'border-r-2');
+
+            if (isSmallScreen) {
+                // On small screens, start collapsed, apply closed state styling
+                sidebar.classList.add('is-collapsed');
+                sidebarToggle.classList.add('rounded-r-xl', 'border-r-2');
+                sidebarIconContainer.innerHTML = ICON_HAMBURGER;
+                sidebarToggle.style.left = '0rem'; 
+                sidebarToggle.setAttribute('aria-label', 'Open sidebar menu');
+                mainContent.style.paddingLeft = COLLAPSED_PADDING; // Apply increased padding for collapsed state
+            } else {
+                // On large screens, start open, apply open state styling
+                sidebar.classList.remove('is-collapsed');
+                sidebarToggle.classList.add('rounded-l-xl', 'border-l-2');
+                sidebarIconContainer.innerHTML = ICON_ARROW_LEFT;
+                // Position the button fully inside the sidebar (Top Right Corner of Sidebar)
+                sidebarToggle.style.left = 'calc(' + SIDEBAR_WIDTH + ' - ' + BUTTON_WIDTH + ')';
+                sidebarToggle.setAttribute('aria-label', 'Close sidebar menu');
+                mainContent.style.paddingLeft = ''; // Ensure no custom padding on open
+            }
+        }
+
 
         // --- Event Listeners ---
 
@@ -604,12 +660,12 @@
         sidebarToggle.addEventListener('click', handleSidebarToggle);
 
 
-        // Initialize theme and presets on load
+        // Initialize theme, presets, and sidebar state on load
         window.onload = () => {
             populatePresets();
             applyTheme();
+            setInitialSidebarState(); // Set the correct initial state based on screen size
         };
     </script>
 </body>
 </html>
-
