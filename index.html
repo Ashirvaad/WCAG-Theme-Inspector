@@ -450,9 +450,8 @@
         function handlePresetChange(event) {
             const selectedValue = event.target.value;
             
-            if (event.target.selectedIndex === 0) {
-                return;
-            }
+            // The check for index 0 (Custom Colors) was removed here. 
+            // This allows selecting "Custom Colors" to correctly reload the initial or last saved custom state.
 
             try {
                 const colors = JSON.parse(selectedValue);
@@ -480,7 +479,7 @@
             root.style.setProperty('--theme-font-family', selectedFont);
         }
 
-        // --- Event Listeners ---
+        // --- Event Listeners ---A
 
         buttonAccentColorInput.addEventListener('input', applyTheme);
         headingColorInput.addEventListener('input', applyTheme);
