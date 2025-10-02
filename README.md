@@ -47,6 +47,7 @@ Purpose
 AA
 
 4.5:1
+______________________________________________________________________________
 
 The industry standard for legal and general web accessibility compliance.
 
@@ -63,5 +64,6 @@ The project consists of a single file, utilizing Tailwind CSS for styling and va
 
 
 index.html: Contains all the HTML structure, CSS styling (including variable definitions), and JavaScript logic.
+
 
 
