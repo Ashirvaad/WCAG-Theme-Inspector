@@ -63,58 +63,97 @@
         /* Styling for the contrast status box */
         .contrast-status {
             @apply text-xs font-semibold px-2 py-0.5 rounded-md;
-            /* Pass/Fail colors are managed by JS for subtle appearance */
         }
+        
+        /* --- Sidebar Specific Custom Styles for Collapse --- */
+        #sidebar {
+            /* Default state (open) on medium and larger screens */
+            width: 16rem; /* Equivalent to w-64 */
+            max-width: 16rem;
+            min-width: 16rem;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #sidebar.is-collapsed {
+            width: 0;
+            max-width: 0;
+            min-width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden;
+            /* Hide border when fully collapsed */
+            border-right-width: 0px; 
+        }
+
+        /* Hide the sidebar on small screens initially, let JS handle the toggle on desktop */
+        @media (max-width: 639px) { /* sm breakpoint */
+            #sidebar {
+                display: none;
+            }
+        }
+        
+        /* The content wrapper inside the sidebar should fade out when collapsed */
+        #sidebar .sidebar-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #sidebar.is-collapsed .sidebar-content {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* CSS to move the toggle button when the sidebar collapses */
+        #sidebarToggle {
+            transition: left 0.3s ease-in-out;
+        }
+        
+        /* When sidebar is collapsed, move the button to the left edge (0rem) */
+        #sidebar.is-collapsed ~ #sidebarToggle {
+            left: 0rem !important; /* Use !important to override inline style */
+        }
+        
     </style>
 </head>
 <body class="bg-theme-bg antialiased transition-colors duration-300">
 
     <div class="min-h-screen flex flex-col">
         
-        <!-- Theme Controls (Fixed Bar) - Full-width, single-line color and control sections -->
+        <!-- Theme Controls (Fixed Bar) -->
         <header class="w-full shadow-lg p-4 sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
             
-            <!-- 1. FULL-WIDTH COLOR PICKERS (7 controls in ONE responsive row) -->
-            <!-- Layout: grid-cols-2 on small, up to lg:grid-cols-7 for single row -->
+            <!-- 1. FULL-WIDTH COLOR PICKERS -->
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 pb-4 border-b border-gray-200">
                 
-                <!-- Page Background Color Picker (1/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="bgColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Page BG:</label>
                     <input type="color" id="bgColor" value="#F9FAFB" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
 
-                <!-- Card Background Color Picker (2/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="cardBgColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Card BG:</label>
                     <input type="color" id="cardBgColor" value="#ffffff" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
 
-                <!-- Text Color Picker (3/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="textColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Body Text:</label>
                     <input type="color" id="textColor" value="#1F2937" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
                 
-                <!-- Button Accent Color Picker (4/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="buttonAccentColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Button Accent:</label>
                     <input type="color" id="buttonAccentColor" value="#1D4ED8" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
                 
-                <!-- Heading Color Picker (5/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="headingColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Title/H Color:</label>
                     <input type="color" id="headingColor" value="#1F2937" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
 
-                <!-- Link Color Picker (6/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="linkColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Link Color:</label>
                     <input type="color" id="linkColor" value="#1D4ED8" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
                 </div>
 
-                <!-- Border Color Picker (7/7) -->
                 <div class="flex items-center space-x-2">
                     <label for="borderColor" class="text-sm font-medium text-gray-600 whitespace-nowrap">Card Border:</label>
                     <input type="color" id="borderColor" value="#1D4ED8" class="h-8 w-8 rounded-lg border-2 border-gray-300 cursor-pointer">
@@ -123,7 +162,7 @@
             <!-- End Full-Width Color Pickers -->
 
 
-            <!-- 2. FULL-WIDTH SECONDARY CONTROLS (Font, Preset, WCAG Status) - All on one line for large screens -->
+            <!-- 2. FULL-WIDTH SECONDARY CONTROLS -->
             <div class="flex flex-wrap items-center gap-x-6 gap-y-3 pt-4"> 
             
                 <!-- Font Style Dropdown -->
@@ -166,77 +205,112 @@
             <!-- End Full-Width Secondary Controls -->
         </header>
 
-        <!-- Main Content Preview Area -->
-        <main class="flex-grow">
+        <!-- Main Content Layout Wrapper (Sidebar + Main Content) -->
+        <div class="flex flex-grow w-full relative"> <!-- Added relative for absolute button positioning -->
             
-            <!-- Dummy Navbar/Hero Section (Simulates the top of a website) - NOW FULL WIDTH -->
-            <!-- This container spans 100% width and uses horizontal padding (mx-4 sm:mx-8) -->
-            <div class="text-center py-12 mb-8 mt-8 bg-theme-card-bg rounded-xl shadow-xl border-2 border-theme-border-color transition-colors duration-300 mx-4 sm:mx-8">
-                <h1 class="text-4xl font-extrabold text-theme-heading-color transition-colors duration-300">
-                    WCAG Theme Inspector
-                </h1>
-                <p class="mt-2 text-lg text-body-secondary">
-                    A professional design system tool for accessibility and theme tuning.
-                </p>
-            </div>
-            <!-- END NEW: Dummy Navbar/Hero Section -->
-
-            <!-- Content Cards Container (MAX WIDTH, centered, with padding) -->
-            <div class="max-w-4xl mx-auto p-4 sm:p-0 space-y-10">
+            <!-- Collapsible Sidebar (ID added for JS) -->
+            <aside id="sidebar" class="flex-shrink-0 bg-theme-card-bg border-r-2 border-theme-border-color p-6 transition-all duration-300">
                 
-                <!-- Heading and Link Contrast Showcase -->
-                <section class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
-                    <!-- H2 now uses the dedicated heading color -->
-                    <h2 class="text-2xl font-bold mb-4 text-theme-heading-color transition-colors duration-300">
-                        Content Block Title
-                    </h2>
-                    <p class="text-body-secondary">
-                        This section shows how the main heading, secondary text, and links render with the current theme settings. Pay close attention to the live WCAG contrast checks in the fixed header above.
-                    </p>
-                    <!-- Link now uses the dedicated link color -->
-                    <a href="#" class="text-theme-link-color font-medium hover:underline transition-colors duration-300">
-                        This simulated link uses the Link Color setting.
-                    </a>
-                </section>
+                <div class="sidebar-content">
+                    <div class="flex justify-start items-center mb-4">
+                        <h3 class="text-lg font-bold text-theme-heading-color">Sidebar Navigation</h3>
+                        <!-- REMOVED THE TOGGLE BUTTON FROM HERE -->
+                    </div>
 
-                <!-- Card and Button Component Showcase -->
-                <section class="grid md:grid-cols-2 gap-6">
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-theme-link-color hover:underline">Section Overview</a></li>
+                        <li><a href="#" class="text-theme-link-color hover:underline">Accessibility Stats</a></li>
+                        <li><a href="#" class="text-theme-link-color hover:underline">Color Palettes</a></li>
+                        <li><a href="#" class="text-theme-link-color hover:underline">Font Previews</a></li>
+                    </ul>
                     
-                    <!-- Content Card 1 (Standard) -->
-                    <!-- Border now uses the dedicated border color -->
-                    <div class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
-                        <!-- H3 now uses the dedicated heading color -->
-                        <h3 class="text-xl font-semibold mb-3 text-theme-heading-color">Information Card</h3>
-                        <p class="mb-4 text-body-secondary text-sm">
-                            The card titles and all card borders are unified under their own color controls, allowing you to define a clear boundary color for your components.
-                        </p>
-                        <button class="btn-primary py-2 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition duration-200 text-sm">
-                            Primary Button (Accent)
-                        </button>
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-semibold mb-2 text-theme-heading-color">Theme Inspector V2</h4>
+                        <span class="text-xs text-body-secondary">Ready for WCAG 2.1 checks.</span>
                     </div>
+                </div>
 
-                    <!-- Content Card 2 (Highlight) -->
-                    <!-- Border now uses the dedicated border color -->
-                    <div class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
-                        <!-- H3 now uses the dedicated heading color -->
-                        <h3 class="text-xl font-semibold mb-3 text-theme-heading-color">Call to Action</h3>
-                        <p class="mb-4 text-body-secondary text-sm">
-                            Use this card to test how distinct heading, link, button, and border colors look together to achieve visual hierarchy.
-                        </p>
-                        <button class="btn-primary py-2 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition duration-200 text-sm">
-                            Get Started
-                        </button>
-                    </div>
-                </section>
+            </aside>
+            
+            <!-- NEW: Toggle Button positioned outside the sidebar/at its edge -->
+            <!-- Initial left: 16rem is the width of the sidebar (w-64) -->
+            <button id="sidebarToggle" class="absolute top-4 p-2 text-theme-link-color hover:text-theme-button-accent bg-theme-card-bg rounded-r-xl border-y-2 border-r-2 border-theme-border-color z-20 shadow transition-all duration-300" 
+                style="left: 16rem;"> 
+                
+                <div id="sidebarToggleIcon">
+                    <!-- Default (Open) Icon: Left Arrow (to close the sidebar) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </div>
+            </button>
 
-                <!-- Footer Preview -->
-                <footer class="text-center py-6 border-t border-gray-200 mt-10">
-                    <p class="text-sm text-body-secondary">
-                        &copy; 2025 WCAG Theme Inspector. Developed By Ashirvaad
+            <!-- Main Content Preview Area -->
+            <main class="flex-grow">
+                
+                <!-- Dummy Navbar/Hero Section (Simulates the top of a website) -->
+                <div class="text-center py-12 mb-8 mt-8 bg-theme-card-bg rounded-xl shadow-xl border-2 border-theme-border-color transition-colors duration-300 mx-4 sm:mx-8">
+                    <h1 class="text-4xl font-extrabold text-theme-heading-color transition-colors duration-300">
+                        WCAG Theme Inspector
+                    </h1>
+                    <p class="mt-2 text-lg text-body-secondary">
+                        A professional design system tool for accessibility and theme tuning.
                     </p>
-                </footer>
-            </div>
-        </main>
+                </div>
+                <!-- END Dummy Navbar/Hero Section -->
+
+                <!-- Content Cards Container (MAX WIDTH, centered, with padding) -->
+                <div class="max-w-4xl mx-auto p-4 sm:p-0 space-y-10">
+                    
+                    <!-- Heading and Link Contrast Showcase -->
+                    <section class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
+                        <h2 class="text-2xl font-bold mb-4 text-theme-heading-color transition-colors duration-300">
+                            Content Block Title
+                        </h2>
+                        <p class="text-body-secondary">
+                            This section shows how the main heading, secondary text, and links render with the current theme settings. Pay close attention to the live WCAG contrast checks in the fixed header above.
+                        </p>
+                        <a href="#" class="text-theme-link-color font-medium hover:underline transition-colors duration-300">
+                            This simulated link uses the Link Color setting.
+                        </a>
+                    </section>
+
+                    <!-- Card and Button Component Showcase -->
+                    <section class="grid md:grid-cols-2 gap-6">
+                        
+                        <!-- Content Card 1 (Standard) -->
+                        <div class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
+                            <h3 class="text-xl font-semibold mb-3 text-theme-heading-color">Information Card</h3>
+                            <p class="mb-4 text-body-secondary text-sm">
+                                The card titles and all card borders are unified under their own color controls, allowing you to define a clear boundary color for your components.
+                            </p>
+                            <button class="btn-primary py-2 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition duration-200 text-sm">
+                                Primary Button (Accent)
+                            </button>
+                        </div>
+
+                        <!-- Content Card 2 (Highlight) -->
+                        <div class="p-6 rounded-xl shadow-xl bg-theme-card-bg border-2 border-theme-border-color transition-colors duration-300">
+                            <h3 class="text-xl font-semibold mb-3 text-theme-heading-color">Call to Action</h3>
+                            <p class="mb-4 text-body-secondary text-sm">
+                                Use this card to test how distinct heading, link, button, and border colors look together to achieve visual hierarchy.
+                            </p>
+                            <button class="btn-primary py-2 px-4 rounded-lg font-semibold shadow-md hover:shadow-lg transition duration-200 text-sm">
+                                Get Started
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Footer Preview -->
+                    <footer class="text-center py-6 border-t border-gray-200 mt-10">
+                        <p class="text-sm text-body-secondary">
+                            &copy; 2025 WCAG Theme Inspector. Developed By Ashirvaad
+                        </p>
+                    </footer>
+                </div>
+            </main>
+        </div>
+        <!-- END: Main Content Layout Wrapper -->
     </div>
 
     <script>
@@ -259,6 +333,25 @@
         const textCardStatusEl = document.getElementById('textCardStatus');
         const accentCardRatioEl = document.getElementById('accentCardContrastRatio');
         const accentCardStatusEl = document.getElementById('accentCardStatus');
+
+        // Sidebar Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarIconContainer = document.getElementById('sidebarToggleIcon');
+
+
+        // Define SVG strings for the toggle states
+        const ICON_ARROW_LEFT = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>`;
+            
+        const ICON_HAMBURGER = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>`;
 
 
         // Define Presets (Updated to include link color)
@@ -450,9 +543,6 @@
         function handlePresetChange(event) {
             const selectedValue = event.target.value;
             
-            // The check for index 0 (Custom Colors) was removed here. 
-            // This allows selecting "Custom Colors" to correctly reload the initial or last saved custom state.
-
             try {
                 const colors = JSON.parse(selectedValue);
                 
@@ -479,7 +569,25 @@
             root.style.setProperty('--theme-font-family', selectedFont);
         }
 
-        // --- Event Listeners ---A
+        /**
+         * Handles the click event to toggle the sidebar collapse state.
+         */
+        function handleSidebarToggle() {
+            const isCollapsed = sidebar.classList.toggle('is-collapsed');
+            
+            // Update the icon and aria label based on the new state
+            if (isCollapsed) {
+                // Sidebar is now collapsed (hidden), show hamburger icon (to open)
+                sidebarIconContainer.innerHTML = ICON_HAMBURGER;
+                sidebarToggle.setAttribute('aria-label', 'Open sidebar menu');
+            } else {
+                // Sidebar is now open (visible), show arrow icon (to close)
+                sidebarIconContainer.innerHTML = ICON_ARROW_LEFT;
+                sidebarToggle.setAttribute('aria-label', 'Close sidebar menu');
+            }
+        }
+
+        // --- Event Listeners ---
 
         buttonAccentColorInput.addEventListener('input', applyTheme);
         headingColorInput.addEventListener('input', applyTheme);
@@ -491,6 +599,10 @@
         
         presetSelector.addEventListener('change', handlePresetChange);
         fontSelector.addEventListener('change', handleFontChange);
+
+        // Sidebar Event Listener
+        sidebarToggle.addEventListener('click', handleSidebarToggle);
+
 
         // Initialize theme and presets on load
         window.onload = () => {
